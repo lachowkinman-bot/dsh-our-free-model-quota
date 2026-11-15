@@ -44,7 +44,11 @@ const replacements = [
   ],
   [
     'if(typeof ctx.inject==="function"){try{ctx.inject(["llm","agentDefaultModel"],sub=>{modelInfo.services={llm:sub.llm,agentDefaultModel:sub.agentDefaultModel};refreshModelInfo(register.base??state.origin)})}catch{}}else if(ctx.llm!==void 0||ctx.agentDefaultModel!==void 0){modelInfo.services={llm:ctx.llm,agentDefaultModel:ctx.agentDefaultModel};refreshModelInfo(register.base??state.origin)}',
-    'const bindModelInfo=()=>{try{const llm=ctx.llm??ctx.get?.("llm");const agentDefaultModel=ctx.agentDefaultModel??ctx.get?.("agentDefaultModel");if(llm!==void 0||agentDefaultModel!==void 0){modelInfo.services={llm,agentDefaultModel};refreshModelInfo(register.base??state.origin)}}catch{}};if(typeof ctx.inject==="function"){try{ctx.inject(["llm","agentDefaultModel"],sub=>{const llm=sub.llm??sub.get?.("llm");const agentDefaultModel=sub.agentDefaultModel??sub.get?.("agentDefaultModel");modelInfo.services={llm,agentDefaultModel};refreshModelInfo(register.base??state.origin)})}catch{bindModelInfo()}}else{bindModelInfo()}',
+    'const bindModelInfo=()=>{try{const llm=ctx.llm??ctx.get?.("llm");const agentDefaultModel=ctx.agentDefaultModel??ctx.get?.("agentDefaultModel");if(llm!==void 0||agentDefaultModel!==void 0){modelInfo.services={llm,agentDefaultModel};refreshModelInfo(register.base??state.origin)}}catch{}};if(typeof ctx.inject==="function"){try{ctx.inject(["llm","agentDefaultModel"],sub=>{const llm=sub.llm??sub.get?.("llm");const agentDefaultModel=sub.agentDefaultModel??sub.get?.("agentDefaultModel");modelInfo.services={llm,agentDefaultModel};refreshModelInfo(register.base??state.origin)})}catch{bindModelInfo()}}else{bindModelInfo()};state.waitModelInfo=async()=>{if(modelInfo.cached?.contextWindow!==void 0)return;const deadline=Date.now()+(state.readyTimeoutMs??15e3);while(Date.now()<deadline){if(modelInfo.cached?.contextWindow!==void 0)return;refreshModelInfo(register.base??state.origin);await new Promise(r=>setTimeout(r,50))}};',
+  ],
+  [
+    'await withTimeout(gate,state2.readyTimeoutMs??15e3);',
+    'const infoGate=state2.waitModelInfo?.();await withTimeout(infoGate===void 0?gate:Promise.all([gate,infoGate]),state2.readyTimeoutMs??15e3);',
   ],
 ]
 
