@@ -5,7 +5,7 @@ import { buildCatalog, buildEacCatalog, buildKiloCatalog, isEacEntry, isKiloEntr
 import { buildAggregateCatalog, isAggregateEntry } from '../aggregate.js'
 import { buildComboCatalog, isComboEntry, normalizeCombos, pruneRotation } from '../combos.js'
 import { JsonStore, SETTINGS_INITIAL, STATS_INITIAL, STATS_VERSION, migrateStats, pruneDays, recordTurn, recordUsage } from '../store.js'
-import { STATE, detectEgress, probeCatalog } from '../probe.js'
+import { STATE, detectEgress, probeCatalog, probeKiloModel, probeModel } from '../probe.js'
 import { CODE, getJson } from '../http.js'
 import { fetchSealedListing } from '../eac.js'
 import { fetchKiloListing } from '../kilo.js'
@@ -262,8 +262,12 @@ export function createModelRuntime({
     // (whether a key is configured). A combo is excluded because it has no
     // endpoint of its own: probing one would send the chain's own id to the free
     // lane as a model name, spending quota to collect a verdict about nothing.
-    const probeable = catalog.filter(entry => !isEacEntry(entry) && !isKiloEntry(entry) && !isAggregateEntry(entry) && !isComboEntry(entry))
-    const results = await probeCatalog(probeable, { attributionUserAgent, signal: lifetime.signal }, (id, result) => {
+    const probeable = catalog.filter(entry => !isEacEntry(entry) && !isAggregateEntry(entry) && !isComboEntry(entry))
+    const results = await probeCatalog(probeable, {
+      attributionUserAgent,
+      signal: lifetime.signal,
+      probe: (model, options) => isKiloEntry(model) ? probeKiloModel(model, options) : probeModel(model, options),
+    }, (id, result) => {
       if (disposed) return
       availability.edit(value => ({
         ...value,

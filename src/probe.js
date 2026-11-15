@@ -17,6 +17,7 @@
 import { applyFingerprint, endpointFor, mintRequestId, sessionForConversation, wireFor } from './upstream.js'
 import { CODE, postStreamed } from './http.js'
 import { egressFetch } from './egress.js'
+import { postKiloStreamed } from './kilo.js'
 
 /** Public-echo sources, tried in order; any one answering is enough. */
 const ECHO_SOURCES = [
@@ -98,6 +99,54 @@ export async function probeModel(model, { attributionUserAgent, signal, timeoutM
   }
 }
 
+/**
+ * Probe one Kilo free-pool model. Kilo has no separate availability listing;
+ * the smallest streaming request is the only reliable signal, and a 429 is the
+ * quota verdict. Exact remaining quota is not disclosed by this gateway.
+ */
+export async function probeKiloModel(model, { signal, timeoutMs = 45000 } = {}) {
+  const started = Date.now()
+  let streamError
+  try {
+    await postKiloStreamed({
+      body: {
+        model: model.id,
+        messages: [{ role: 'user', content: PING_PROMPT }],
+        stream: true,
+        max_tokens: 16,
+      },
+      signal,
+      timeoutMs,
+      onData: payload => {
+        if (streamError !== undefined || !/"(?:type"\s*:\s*"error"|"error"\s*:)/.test(payload)) return
+        try {
+          const parsed = JSON.parse(payload)
+          const failure = parsed?.error ?? (parsed?.type === 'error' ? parsed : undefined)
+          if (failure !== undefined && failure !== null) {
+            streamError = typeof failure.message === 'string' ? failure.message : 'upstream error'
+          }
+        } catch { /* not a JSON error frame */ }
+      },
+    })
+    if (streamError !== undefined) {
+      const quota = /usage limit|rate limit|429/i.test(streamError)
+      return {
+        state: quota ? STATE.throttled : STATE.unknown,
+        detail: streamError.slice(0, 200),
+        latencyMs: Date.now() - started,
+      }
+    }
+    return { state: STATE.available, latencyMs: Date.now() - started }
+  } catch (error) {
+    return {
+      state: stateOf(error),
+      detail: typeof error?.message === 'string' ? error.message.slice(0, 200) : String(error),
+      latencyMs: Date.now() - started,
+      ...typeof error?.providerRetryAfterMs === 'number' ? { retryAfterMs: error.providerRetryAfterMs } : {},
+    }
+  }
+}
+
 function buildPing(modelId, wire) {
   if (wire === 'responses') {
     return {
@@ -149,7 +198,7 @@ function buildPing(modelId, wire) {
  */
 const ROUTING_REFUSAL_STATUS = new Set([400, 404, 422])
 
-function stateOf(error) {
+export function stateOf(error) {
   switch (error?.code) {
     case CODE.region: return STATE.regionBlocked
     case CODE.quota: return STATE.throttled
@@ -214,11 +263,12 @@ export async function detectEgress({ signal, timeoutMs = 8000 } = {}) {
 export async function probeCatalog(models, options = {}, onResult = () => {}, concurrency = 2) {
   const results = {}
   let cursor = 0
+  const probe = options.probe ?? probeModel
   const workers = Array.from({ length: Math.max(1, Math.min(concurrency, models.length)) }, async () => {
     while (cursor < models.length) {
       const index = cursor++
       const model = models[index]
-      const result = await probeModel(model, options)
+      const result = await probe(model, options)
       results[model.id] = result
       onResult(model.id, result)
     }

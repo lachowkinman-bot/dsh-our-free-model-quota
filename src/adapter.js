@@ -798,7 +798,6 @@ function savingsFields(report) {
  * asked.
  */
 const QUOTA_BADGE = {
-  available: '免费额度',
   throttled: '限流',
   'region-blocked': '地区限制',
   unavailable: '不可用',

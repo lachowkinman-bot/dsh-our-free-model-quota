@@ -28,6 +28,12 @@ export const FREE_LANE_QUOTA = Object.freeze({
   note: '按上游会话计；额度耗尽会 429，长任务/大上下文建议换 1M 模型',
 })
 
+export const KILO_LANE_QUOTA = Object.freeze({
+  scope: 'free-pool',
+  label: '免费池',
+  note: 'Kilo 免费池；额度/限流由上游决定，长任务建议 256K+ 模型',
+})
+
 /**
  * Local capability baseline. `contextWindow`/`maxOutput` are the provider's
  * published capacities; `vision` is what this lane actually accepted under a
@@ -378,6 +384,7 @@ function kiloEntryOf(row) {
     reasoning: true,
     contextWindow: context,
     maxOutput: output,
+    quota: KILO_LANE_QUOTA,
     // With a declared menu the thinking level itself is the control (a real
     // effort field on the wire); without one the free lane's token-budget
     // ladder applies and the model's streaming thinking cannot be switched off.

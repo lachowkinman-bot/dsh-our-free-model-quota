@@ -2331,7 +2331,7 @@ function buildSummary(deps) {
   // and the aggregate lane are named by a listing round that already succeeded,
   // and a combo is a view over rows that were themselves named — none of them is
   // pinged, so "no verdict" must not render as "unknown".
-  const unprobed = entry => isEacEntry(entry) || isKiloEntry(entry) || isAggregateEntry(entry) || isComboEntry(entry)
+  const unprobed = entry => isEacEntry(entry) || isAggregateEntry(entry) || isComboEntry(entry)
   return {
     catalog: state.catalog.map(entry => ({
       ...entry,
