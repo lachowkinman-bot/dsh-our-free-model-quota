@@ -30,6 +30,7 @@
     "test:quota-annotation": "node scripts/check-quota-annotation.mjs",
     "patch:acp-window": "node scripts/patch-acp-window.mjs",
     "redact:vendor-oauth": "node scripts/redact-vendor-oauth.mjs vendor/channel-pack/pack.js",
+    "configure:acp-window": "node scripts/configure-acp-model-window.mjs",
     "typecheck": "tsc --noEmit -p tsconfig.json"
   },
   "files": [
@@ -48,7 +49,8 @@
     "PATCH-NOTES.md",
     "scripts/check-quota-annotation.mjs",
     "scripts/patch-acp-window.mjs",
-    "scripts/redact-vendor-oauth.mjs"
+    "scripts/redact-vendor-oauth.mjs",
+    "scripts/configure-acp-model-window.mjs"
   ],
   "keywords": [
     "dsh",

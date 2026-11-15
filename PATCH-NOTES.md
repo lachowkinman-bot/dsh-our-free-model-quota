@@ -23,6 +23,10 @@
   Google OAuth 默认 client id/secret，避免把凭据推送到公开仓库。Gemini
   OAuth 需要通过 `CMDC_PAK_GOOGLE_CLIENT_ID` /
   `CMDC_PAK_GOOGLE_CLIENT_SECRET` 提供自己的客户端凭据。
+- `scripts/configure-acp-model-window.mjs`：在 `billion-context.json` 中为
+  `https://opencode.ai` 的 `mimo-v2.6-flash-free` 固定
+  `context: 1048576`、`output: 131072`，作为 runtime-info 未及时上报时的
+  确定性兜底。
 
 ## 为什么徽标放在 name
 
@@ -35,6 +39,7 @@ DSH 当前的原生 composer 模型选择器只渲染 `model.name`，不渲染
 ```bash
 node scripts/check-quota-annotation.mjs
 node scripts/redact-vendor-oauth.mjs vendor/channel-pack/pack.js
+node scripts/configure-acp-model-window.mjs
 node --check src/adapter.js
 node --check src/catalog.js
 node --check src/core/runtime.js
