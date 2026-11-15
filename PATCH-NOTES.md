@@ -23,10 +23,11 @@
   Google OAuth 默认 client id/secret，避免把凭据推送到公开仓库。Gemini
   OAuth 需要通过 `CMDC_PAK_GOOGLE_CLIENT_ID` /
   `CMDC_PAK_GOOGLE_CLIENT_SECRET` 提供自己的客户端凭据。
-- `scripts/configure-acp-model-window.mjs`：在 `billion-context.json` 中为
-  `https://opencode.ai` 的 `mimo-v2.6-flash-free` 固定
-  `context: 1048576`、`output: 131072`，作为 runtime-info 未及时上报时的
-  确定性兜底。
+- `scripts/configure-acp-model-window.mjs`：读取插件的 `catalog.json`，
+  在 `billion-context.json` 中为全部免密车道模型（`https://opencode.ai`）
+  和全部 Kilo 车道模型（`https://api.kilo.ai/api/gateway`）写入
+  `context`/`output`，包括 `kilo-auto/free` 的 `256000`/`32768`。
+  这是 runtime-info 未及时上报时的确定性兜底。
 
 ## 为什么徽标放在 name
 
