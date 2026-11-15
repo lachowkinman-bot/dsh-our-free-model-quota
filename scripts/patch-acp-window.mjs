@@ -50,6 +50,18 @@ const replacements = [
     'await withTimeout(gate,state2.readyTimeoutMs??15e3);',
     'const infoGate=state2.waitModelInfo?.();await withTimeout(infoGate===void 0?gate:Promise.all([gate,infoGate]),state2.readyTimeoutMs??15e3);',
   ],
+  [
+    'const sid=sessionIdOf(ctx);if(sid===void 0)return void 0;refreshModelInfo(register.base);',
+    'const sid=sessionIdOf(ctx)??"dsh-unattributed";refreshModelInfo(register.base);',
+  ],
+  [
+    'const line=`bili-native-dsh: model request sent DIRECT (uncompressed) \\u2014 takeover gate refused ${key}: ${reason} \\u2014 refusals so far: ${count}${suffix}`;',
+    'const line=`bili-native-dsh: no initiator attribution; routing through proxy with fallback conversation ${key}: ${reason}${suffix}`;',
+  ],
+  [
+    'return false};const unroutedEndpoints',
+    'return true};const unroutedEndpoints',
+  ],
 ]
 
 for (const [before, after] of replacements) {
