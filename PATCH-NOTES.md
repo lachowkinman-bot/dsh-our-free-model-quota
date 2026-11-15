@@ -6,13 +6,17 @@
 ## 补丁内容
 
 - `src/catalog.js`：为免密免费车道增加 `quota` 元数据，记录额度作用域、
-  429 风险与长任务建议。
+  429 风险与长任务建议；Kilo 车道增加 `免费池` 元数据。
 - `src/core/runtime.js`：把实时 availability 快照暴露给适配器。
 - `src/adapter.js`：
   - 模型选择器名称追加紧凑徽标：`· 免费额度`、`· 限流`、`· 地区限制`、
     `· 不可用`；
   - `description` 增加额度说明、当前探测状态，以及
     `contextWindow - maxOutput` 后的可用输入预算。
+- `src/probe.js`：新增 `probeKiloModel`，用最小流式请求探测 Kilo 免费池；
+  `src/core/runtime.js` 将 Kilo 条目纳入同一轮探测；`index.js` 不再把
+  Kilo 当作“未探测即可用”。上游只给出可用/429/retry-after，不给出精确
+  剩余额度数字，因此界面显示状态而不是伪造百分比。
 - `scripts/patch-acp-window.mjs`：修复 `billion-context` 未注入
   `llm` / `agentDefaultModel` 导致的窗口回退（200K），并让缺失窗口的缓存
   自动重试解析；首个请求等待窗口解析完成；没有 initiator 归属的模型请求
