@@ -40,7 +40,7 @@ const replacements = [
   ],
   [
     'if(modelInfo.cached?.provider===provider&&modelInfo.cached?.model===model)return;',
-    'if(modelInfo.cached?.provider===provider&&modelInfo.cached?.model===model&&modelInfo.cached?.contextWindow!==void 0)return;',
+    'if(modelInfo.cached?.provider===provider&&modelInfo.cached?.model===model&&modelInfo.cached?.contextWindow!==void 0){const reportKey=origin+"|"+provider+"|"+model;if(origin!==void 0&&modelInfo.reportedKey!==reportKey){void reportRuntimeInfo(origin,{agent:"dsh",model:modelInfo.cached.model,contextWindow:modelInfo.cached.contextWindow,maxOutput:modelInfo.cached.maxOutput,source:"client-config"}).then(()=>{modelInfo.reportedKey=reportKey}).catch(()=>{})}return}',
   ],
   [
     'if(typeof ctx.inject==="function"){try{ctx.inject(["llm","agentDefaultModel"],sub=>{modelInfo.services={llm:sub.llm,agentDefaultModel:sub.agentDefaultModel};refreshModelInfo(register.base??state.origin)})}catch{}}else if(ctx.llm!==void 0||ctx.agentDefaultModel!==void 0){modelInfo.services={llm:ctx.llm,agentDefaultModel:ctx.agentDefaultModel};refreshModelInfo(register.base??state.origin)}',

@@ -17,6 +17,8 @@
   `llm` / `agentDefaultModel` 导致的窗口回退（200K），并让缺失窗口的缓存
   自动重试解析；首个请求等待窗口解析完成；没有 initiator 归属的模型请求
   通过 `dsh-unattributed` 回退会话继续走 ACP，而不是直接绕过去压缩。
+  另外，缓存中已有窗口但尚未上报给 proxy 时，会在 proxy origin 可用后补报一次
+  runtime-info，避免“解析到了 1M、proxy 仍用 200K 回退”的竞态。
 - `scripts/redact-vendor-oauth.mjs`：移除上游 vendored channel pack 中打包的
   Google OAuth 默认 client id/secret，避免把凭据推送到公开仓库。Gemini
   OAuth 需要通过 `CMDC_PAK_GOOGLE_CLIENT_ID` /
